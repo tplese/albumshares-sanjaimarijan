@@ -5,12 +5,16 @@ const albumRouter = express.Router();
 
 module.exports = function router() {
   const {
-    readPhotoDirectory,
+    readFullPhotosDirectory,
+    createFullPhotosDirectoryHash,
+    compareLastAndFileHash,
+    populatePhotosDatabase,
+    getPhotosFromDbToArray,
     renderPage
   } = albumController();
 
   albumRouter.route('/')
-    .get(readPhotoDirectory, renderPage)
+    .get(readFullPhotosDirectory, createFullPhotosDirectoryHash, compareLastAndFileHash, populatePhotosDatabase, getPhotosFromDbToArray, renderPage)
 
   return albumRouter;
 };
