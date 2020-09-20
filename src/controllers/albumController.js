@@ -152,9 +152,32 @@ module.exports = function albumController() {
           listOfPhotoObjects,
         },
       ); 
-    } catch {
+    } catch (err) {
       debug(err.stack);
     }
+
+    next();
+  }
+
+
+  async function downloadChosenPhotos(req, res, next) {
+    debug('downloadChosenPhotos');
+
+    try {
+      console.log(req);
+      
+
+      
+      const photosToDownload = JSON.parse(JSON.stringify(req.body));
+
+      for (let key in photosToDownload) {
+        debug(`value: ${photosToDownload[key]}`);
+      }
+
+    } catch (err) {
+      debug(err.stack);
+    }
+
     next();
   }
 
@@ -165,5 +188,6 @@ module.exports = function albumController() {
     populatePhotosDatabase,
     getPhotosFromDbToArray,
     renderPage,
+    downloadChosenPhotos
   };
 };

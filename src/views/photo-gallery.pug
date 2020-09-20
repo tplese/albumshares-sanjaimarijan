@@ -7,4 +7,7 @@ block photoGallery
         article.thumb
           a.image(href=photoObject.full)
             img(src=photoObject.thumb alt='')
-          h2=photoObject.name
+          input(type='checkbox' form='chosenPhotos' id=photoObject.name name=photoObject.name value=photoObject.full)
+          label(for=photoObject.name)
+            h2= photoObject.name
+

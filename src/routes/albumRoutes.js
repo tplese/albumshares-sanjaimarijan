@@ -10,11 +10,19 @@ module.exports = function router() {
     compareLastAndFileHash,
     populatePhotosDatabase,
     getPhotosFromDbToArray,
-    renderPage
+    renderPage,
+    downloadChosenPhotos
   } = albumController();
 
   albumRouter.route('/')
-    .get(readFullPhotosDirectory, createFullPhotosDirectoryHash, compareLastAndFileHash, populatePhotosDatabase, getPhotosFromDbToArray, renderPage)
+    .get(
+      readFullPhotosDirectory, 
+      createFullPhotosDirectoryHash, 
+      compareLastAndFileHash, 
+      populatePhotosDatabase, 
+      getPhotosFromDbToArray, 
+      renderPage)
+    .post(downloadChosenPhotos, renderPage)
 
   return albumRouter;
 };
