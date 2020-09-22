@@ -151,7 +151,7 @@ module.exports = function albumController() {
         {
           listOfPhotoObjects,
         },
-      ); 
+      );
     } catch (err) {
       debug(err.stack);
     }
@@ -162,17 +162,33 @@ module.exports = function albumController() {
 
   async function downloadChosenPhotos(req, res, next) {
     debug('downloadChosenPhotos');
-
+ 
     try {
-      console.log(req);
+      res.download('img1.jpg', (error) => {
+        if (error) {
+          debug(`Error: ${error}`)
+        } else {
+          debug('Success!');
+        };
+      });
+/*
+      const img03 = path.join(fullPhotosDirPath, 'img03.jpg'); 
+      res.download(img03, function(error) {
+        debug(`Error: ${error}`);
+      });
       
-
-      
+*/
+      /*
       const photosToDownload = JSON.parse(JSON.stringify(req.body));
-
+      
+      let currentFileDownload;
       for (let key in photosToDownload) {
         debug(`value: ${photosToDownload[key]}`);
+        currentFileDownload = path.join(fullPhotosDirPath, key);
+        debug(`currentFile: ${currentFileDownload}`);
+        res.download(currentFileDownload);
       }
+      */
 
     } catch (err) {
       debug(err.stack);

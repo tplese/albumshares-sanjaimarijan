@@ -12,17 +12,20 @@ app.use(morgan('tiny'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(express.static(path.join(__dirname, '/public/')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.set('views', path.join(__dirname, 'src', 'views'));
 app.set('view engine', 'pug');
 
-app.use('/album', albumRouter());
+app.use('/', albumRouter());
 
-app.get('/', (req, res) => {
-  res.render('layout');
+/*
+app.get('/download', (req, res) => {
+  //response.setHeader("Content-Type", "text/pdf");
+  res.download('img1.jpg');
 });
+*/
 
 app.listen(port, () => {
   debug(`listening on port ${port}`);
