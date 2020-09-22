@@ -4,6 +4,7 @@ const debug = require('debug')('app:albumController');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const archiver = require('archiver');
 
 // photo directory paths - fulls and thumbs
 const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
@@ -159,42 +160,94 @@ module.exports = function albumController() {
     next();
   }
 
+  async function archivePhotos(req, res, next) {
+    debug('archivePhotos');
+    
+    try {
+      let output = fs.createWriteStream(path.join(__dirname, '..', '..', 'example.zip'));
+      let archive = archiver('zip');
 
-  async function downloadChosenPhotos(req, res, next) {
+      output.on('close', function() {
+        console.log(archive.pointer() + ' total bytes');
+        console.log('archiver has been finalized and the output file descriptor has closed.');
+      });
+
+      output.on('end', function() {
+        console.log('Data has been drained');
+      });
+
+      archive.on('error', function(err) {
+        throw err;
+      });
+
+      archive.on('warning', function(err) {
+        if (err.code === 'ENOENT') {
+          // log warning
+        } else {
+          // throw error
+          throw err;
+        }
+      });
+
+      archive.on('error', function(err) {
+        throw err;
+      });
+
+      // Pipe archive data to the output file
+      archive.pipe(output);
+
+      // Append files
+      const photosToDownload = await req.body;
+      let fileBeingArchived;
+      
+      for (let key in photosToDownload) {
+        //debug(`value: ${photosToDownload[key]}`);
+        fileBeingArchived = path.join(fullPhotosDirPath, key);
+        //debug(`currentFile: ${currentFileDownload}`);
+      
+        archive.file(fileBeingArchived, { name: key });
+      };
+
+      await archive.finalize();
+    } catch (err) {
+      debug(err.stack);
+    }
+
+    next();
+    
+  }
+
+  async function downloadChosenPhotos(req, res) {
     debug('downloadChosenPhotos');
  
     try {
-      res.download('img1.jpg', (error) => {
+      res.download(path.join(__dirname, '..', '..', 'example.zip'), (error) => {
         if (error) {
           debug(`Error: ${error}`)
         } else {
-          debug('Success!');
+          debug('Successful download!');
         };
       });
-/*
-      const img03 = path.join(fullPhotosDirPath, 'img03.jpg'); 
-      res.download(img03, function(error) {
-        debug(`Error: ${error}`);
-      });
-      
-*/
       /*
-      const photosToDownload = JSON.parse(JSON.stringify(req.body));
+      const photosToDownload = req.body;
       
       let currentFileDownload;
       for (let key in photosToDownload) {
         debug(`value: ${photosToDownload[key]}`);
         currentFileDownload = path.join(fullPhotosDirPath, key);
         debug(`currentFile: ${currentFileDownload}`);
-        res.download(currentFileDownload);
-      }
+        res.download(currentFileDownload, (error) => {
+          if (error) {
+            debug(`Error: ${error}`)
+          } else {
+            debug('Successful download!');
+          };
+        });
+      };
       */
-
     } catch (err) {
       debug(err.stack);
     }
-
-    next();
   }
 
   return {
@@ -204,6 +257,7 @@ module.exports = function albumController() {
     populatePhotosDatabase,
     getPhotosFromDbToArray,
     renderPage,
+    archivePhotos,
     downloadChosenPhotos
   };
 };

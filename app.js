@@ -10,7 +10,7 @@ const port = process.env.PORT || 5100;
 
 app.use(morgan('tiny'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
