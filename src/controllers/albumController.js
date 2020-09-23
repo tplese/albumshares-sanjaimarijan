@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const archiver = require('archiver');
+//const through = require('through2');
 
 // photo directory paths - fulls and thumbs
 const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
@@ -164,8 +165,13 @@ module.exports = function albumController() {
     debug('archivePhotos');
     
     try {
-      let output = fs.createWriteStream(path.join(__dirname, '..', '..', 'example.zip'));
-      let archive = archiver('zip');
+      let output = fs.createWriteStream('Davorin-Martina-Foto.zip');
+      
+      let archive = archiver('zip', {
+        zlib: { level: 9 }
+      });
+
+      
 
       output.on('close', function() {
         console.log(archive.pointer() + ' total bytes');
@@ -204,8 +210,8 @@ module.exports = function albumController() {
         //debug(`value: ${photosToDownload[key]}`);
         fileBeingArchived = path.join(fullPhotosDirPath, key);
         //debug(`currentFile: ${currentFileDownload}`);
-      
-        archive.file(fileBeingArchived, { name: key });
+
+        archive.append(fs.createReadStream(fileBeingArchived), { name: key });
       };
 
       await archive.finalize();
@@ -214,40 +220,40 @@ module.exports = function albumController() {
     }
 
     next();
-    
   }
 
   async function downloadChosenPhotos(req, res) {
     debug('downloadChosenPhotos');
  
     try {
-      res.download(path.join(__dirname, '..', '..', 'example.zip'), (error) => {
+      res.download('Davorin-Martina-Foto.zip', (error) => {
         if (error) {
           debug(`Error: ${error}`)
         } else {
           debug('Successful download!');
         };
       });
-      /*
-      const photosToDownload = req.body;
-      
-      let currentFileDownload;
-      for (let key in photosToDownload) {
-        debug(`value: ${photosToDownload[key]}`);
-        currentFileDownload = path.join(fullPhotosDirPath, key);
-        debug(`currentFile: ${currentFileDownload}`);
-        res.download(currentFileDownload, (error) => {
-          if (error) {
-            debug(`Error: ${error}`)
-          } else {
-            debug('Successful download!');
-          };
-        });
-      };
-      */
     } catch (err) {
       debug(err.stack);
     }
+  }
+
+
+  async function renderPageNew(req, res, next) {
+    debug('renderPageNew');
+
+    try {
+      res.render(
+        'photo-new',
+        {
+          listOfPhotoObjects,
+        },
+      );
+    } catch (err) {
+      debug(err.stack);
+    }
+
+    next();
   }
 
   return {
@@ -258,6 +264,7 @@ module.exports = function albumController() {
     getPhotosFromDbToArray,
     renderPage,
     archivePhotos,
-    downloadChosenPhotos
+    downloadChosenPhotos,
+    renderPageNew
   };
 };

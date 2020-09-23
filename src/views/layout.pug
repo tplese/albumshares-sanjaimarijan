@@ -11,6 +11,8 @@ html
     link(rel='stylesheet' href='assets/css/main.css')
     noscript
       link(rel='stylesheet' href='assets/css/noscript.css')
+    link(type='text/css' rel='stylesheet' href='lightgallery/css/lightgallery.css')
+    link(rel='stylesheet', href='assets/css/customization.css')
   body.is-preload
     // Wrapper
     #wrapper
@@ -30,7 +32,7 @@ html
               form#chosenPhotos(name='listOfPhotos' action='/download' method='post')
                 button(form='chosenPhotos' type='submit') Skini fotke
             li
-              a(href='/download') Download
+              a(href='/fotonew') FotoNew
             li
               a(href='/video') Video
             //li
@@ -39,6 +41,8 @@ html
       block mainPage
       
       block photoGallery
+
+      block photoNew
 
       // Footer
       footer#footer.panel
@@ -92,7 +96,22 @@ html
     // Scripts
     script(src='assets/js/jquery.min.js')
     script(src='assets/js/jquery.poptrox.min.js')
+
+    // A jQuery plugin that adds cross-browser mouse wheel support. (Optional)
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js')
+
+    script(src='lightgallery/js/lightgallery.min.js')
+
+    // lightgallery plugins
+    script(src='lg-thumbnail/lg-thumbnail.min.js')
+    script(src='lg-fullscreen/lg-fullscreen.min.js')
+    
     script(src='assets/js/browser.min.js')
     script(src='assets/js/breakpoints.min.js')
     script(src='assets/js/util.js')
     script(src='assets/js/main.js')
+
+    script.
+      $(document).ready(function() {
+        $('#lightgallery').lightGallery(); 
+      });

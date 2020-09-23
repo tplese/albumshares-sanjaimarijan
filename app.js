@@ -13,12 +13,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use('/lightgallery', express.static(path.join(__dirname, 'node_modules/lightgallery/dist')));
+app.use('/lg-thumbnail', express.static(path.join(__dirname, 'node_modules/lg-thumbnail/dist')));
+app.use('/lg-fullscreen', express.static(path.join(__dirname, 'node_modules/lg-fullscreen/dist')));
 
 app.set('views', path.join(__dirname, 'src', 'views'));
 app.set('view engine', 'pug');
 
 app.use('/', albumRouter());
+
 
 /*
 app.get('/download', (req, res) => {

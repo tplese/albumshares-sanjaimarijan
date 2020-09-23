@@ -12,7 +12,8 @@ module.exports = function router() {
     getPhotosFromDbToArray,
     renderPage,
     archivePhotos,
-    downloadChosenPhotos
+    downloadChosenPhotos,
+    renderPageNew
   } = albumController();
 
   albumRouter.route('/').get((req, res) => {
@@ -28,16 +29,18 @@ module.exports = function router() {
       getPhotosFromDbToArray,
       renderPage 
     );
-    //.post(downloadChosenPhotos, renderPage);
+    
+  albumRouter.route('/fotonew')
+    .get(
+      readFullPhotosDirectory,
+      createFullPhotosDirectoryHash,
+      compareLastAndFileHash,
+      populatePhotosDatabase,
+      getPhotosFromDbToArray,
+      renderPageNew
+    );
 
-  //albumRouter.route('/download').get(downloadChosenPhotos);
   albumRouter.route('/download').post(archivePhotos, downloadChosenPhotos);
 
-  /*
-  albumRouter.route('/download').post((req, res) => {
-    //response.setHeader("Content-Type", "text/pdf");
-    res.download('img1.jpg');
-  });
-  */
   return albumRouter;
 };
