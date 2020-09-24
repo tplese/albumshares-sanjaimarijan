@@ -1,3 +1,10 @@
 .lg {
   height: 90% !important;
 }
+
+.photo-thumb {
+  object-fit: cover;
+  width:300px;
+  height:300px;
+  margin: 5px 10px;
+}

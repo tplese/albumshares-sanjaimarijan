@@ -11,7 +11,7 @@ html
     link(rel='stylesheet' href='assets/css/main.css')
     noscript
       link(rel='stylesheet' href='assets/css/noscript.css')
-    link(type='text/css' rel='stylesheet' href='lightgallery/css/lightgallery.css')
+    link(type='text/css' rel='stylesheet' href='node_modules/lightgallery/dist/css/lightgallery.css')
     link(rel='stylesheet', href='assets/css/customization.css')
   body.is-preload
     // Wrapper
@@ -26,13 +26,13 @@ html
           ul
             li
               a(href='/') Glavna
-            li
-              a(href='/album') Foto
-            li
+            //li
+              a(href='/albumold') Foto
+            //li
               form#chosenPhotos(name='listOfPhotos' action='/download' method='post')
                 button(form='chosenPhotos' type='submit') Skini fotke
             li
-              a(href='/fotonew') FotoNew
+              a(href='/album') Foto
             li
               a(href='/video') Video
             //li
@@ -43,6 +43,8 @@ html
       block photoGallery
 
       block photoNew
+
+      block videoPlayer
 
       // Footer
       footer#footer.panel
@@ -100,11 +102,12 @@ html
     // A jQuery plugin that adds cross-browser mouse wheel support. (Optional)
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js')
 
-    script(src='lightgallery/js/lightgallery.min.js')
+    script(src='node_modules/lightgallery/dist/js/lightgallery.min.js')
 
     // lightgallery plugins
-    script(src='lg-thumbnail/lg-thumbnail.min.js')
-    script(src='lg-fullscreen/lg-fullscreen.min.js')
+    script(src='node_modules/lg-thumbnail/dist/lg-thumbnail.min.js')
+    script(src='node_modules/lg-fullscreen/dist/lg-fullscreen.min.js')
+    script(src='node_modules/lg-video/dist/lg-video.min.js')
     
     script(src='assets/js/browser.min.js')
     script(src='assets/js/breakpoints.min.js')
@@ -115,3 +118,5 @@ html
       $(document).ready(function() {
         $('#lightgallery').lightGallery(); 
       });
+    script.
+      $('#html5-videos').lightGallery();

@@ -256,6 +256,22 @@ module.exports = function albumController() {
     next();
   }
 
+
+  async function renderVideoPlayer(req, res, next) {
+    debug('renderVideoPlayer');
+
+    try {
+      res.render(
+        'video-player'
+      );
+    } catch (err) {
+      debug(err.stack);
+    }
+
+    next();
+  }
+
+
   return {
     readFullPhotosDirectory,
     createFullPhotosDirectoryHash,
@@ -265,6 +281,7 @@ module.exports = function albumController() {
     renderPage,
     archivePhotos,
     downloadChosenPhotos,
-    renderPageNew
+    renderPageNew,
+    renderVideoPlayer
   };
 };
