@@ -5,8 +5,8 @@ block photoNew
     if listOfPhotoObjects.length  
       for photoObject of listOfPhotoObjects
         a(href=photoObject.full)
-          img.photo-thumb(src=photoObject.thumb alt='') 
-  
+          img.photo-thumb(src=photoObject.thumb alt=photoObject.name) 
+          p=photoObject.name
   
   
   

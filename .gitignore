@@ -1,3 +1,5 @@
-/node_modules
-/public/photos
-/public/videos
+node_modules/
+**/photos/
+**/videos/
+templates/
+**/multiverse-template/

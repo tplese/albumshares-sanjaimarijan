@@ -1,10 +1,61 @@
+#lightgallery > a {
+  border: 0;
+}
+
 .lg {
   height: 90% !important;
 }
 
 .photo-thumb {
   object-fit: cover;
-  width:300px;
-  height:300px;
-  margin: 5px 10px;
+  min-width: 300px;
+  min-height: 169px;
 }
+
+#lightgallery > a {
+  position: relative;
+}
+
+a {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+a > p {
+  position: absolute;
+  bottom: -5px;
+  left: 30px;
+  color: white;
+  text-transform: uppercase;
+}
+
+ul > li {
+  list-style-type: none;
+}
+
+@media (orientation: portrait) {
+  .photo-thumb {
+    width: 100%;
+    height: 70vw;
+  }
+}
+
+@media (orientation: landscape) {
+  .photo-thumb {
+    width: 33%;
+    height: 20vw;
+  }
+}
+
+/*
+@media (max-width: 360px) and (orientation: landscape) {
+  .photo-thumb {
+    width: 100%;
+    height: 20vw;
+  }
+}
+*/
+
+
