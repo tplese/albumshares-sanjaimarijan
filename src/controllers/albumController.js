@@ -271,6 +271,26 @@ module.exports = function albumController() {
     next();
   }
 
+  
+  async function downloadVideo(req, res) {
+    debug('downloadVideo');
+    
+    try {
+      //debug(`videoDl: ${JSON.parse(stringify(req.body.videoDl))}`);
+      //console.log(req.body.videoDl);
+      
+      res.download(req.body.videoDl, (error) => {
+        if (error) {
+          debug(`Error: ${error}`)
+        } else {
+          debug('Successful download!');
+        };
+      });
+    } catch (err) {
+      debug(err.stack);
+    }
+  }
+
 
   return {
     readFullPhotosDirectory,
@@ -282,6 +302,7 @@ module.exports = function albumController() {
     archivePhotos,
     downloadChosenPhotos,
     renderPageNew,
-    renderVideoPlayer
+    renderVideoPlayer,
+    downloadVideo
   };
 };

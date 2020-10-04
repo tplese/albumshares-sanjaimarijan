@@ -1,5 +1,12 @@
 extends layout
 
 block mainPage
-  #main
-    h2 Hello World
+  div.row(id='main-page-row')
+    div.col-img
+      img.portrait(id='img-main-01' src='images/main-01-por.jpg' alt='')
+      img.landscape(id='img-main-02' src='images/main-02-lan.jpg' alt='')
+      img.portrait(id='img-main-03' src='images/main-03-por.jpg' alt='')
+      img.landscape(id='img-main-04' src='images/main-04-lan.jpg' alt='')
+    div.col-txt
+      h1 Dobrodošli na stranice Martine i Davorina
+      p

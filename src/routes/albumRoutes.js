@@ -14,7 +14,8 @@ module.exports = function router() {
     archivePhotos,
     downloadChosenPhotos,
     renderPageNew,
-    renderVideoPlayer
+    renderVideoPlayer,
+    downloadVideo
   } = albumController();
 
   albumRouter.route('/').get((req, res) => {
@@ -45,7 +46,10 @@ module.exports = function router() {
     );
 
   albumRouter.route('/video')
-    .get(renderVideoPlayer)
+    .get(renderVideoPlayer);
+
+  albumRouter.route('/download')
+    .post(downloadVideo);
 
   return albumRouter;
 };
