@@ -3,10 +3,10 @@ extends layout
 block videoPlayer
   div(style='display:none;' id='video1')
     video(class='lg-video-object lg-html5' controls preload='none')
-      source(src='videos/MD-Spot.mp4' type='video/mp4')
+      source(src='videos/MD-Spot.m4v' type='video/mp4')
   div(style='display:none;' id='video2')
     video(class='lg-video-object lg-html5' controls preload='none')
-      source(src='videos/MD-Svadba.mp4' type='video/mp4')
+      source(src='videos/MD-Svadba.m4v' type='video/mp4')
   //data-src should not be provided when you use html5 videos
   ul.vid-ul-width(id='html5-videos')
     li(data-poster='video-poster1.jpg' data-sub-html='video caption1' data-html='#video1')
@@ -19,6 +19,6 @@ block videoPlayer
   div.vid-div-width
     h1 Preuzimanja videa
     form#dl-short(name='shortVideo' action='/download' method='post')
-      button(form='dl-short' type='submit' name='videoDl' value='public/videos/MD-Spot.mp4') Preuzmi Spot
+      button(form='dl-short' type='submit' name='videoDl' value='public/videos-dl/MD-Spot.m4v') Preuzmi Spot
     form#dl-long(name='longVideo' action='/download' method='post')
-      button(form='dl-long' type='submit' name='videoDl' value='public/videos/MD-Svadba.mp4') Preuzmi Svadbu
+      button(form='dl-long' type='submit' name='videoDl' value='public/videos-dl/MD-Svadba.m4v') Preuzmi Svadbu
