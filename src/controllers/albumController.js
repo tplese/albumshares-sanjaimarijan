@@ -1,21 +1,17 @@
-//const SshClient = require('ssh2-sftp-client');
 const { MongoClient, ObjectID } = require('mongodb');
 const debug = require('debug')('app:albumController');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const archiver = require('archiver');
-//const through = require('through2');
 
 // photo directory paths - fulls and thumbs
 const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
-//const thumbPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'thumbs');
 
 let dirHashExists;
 let fullPhotosList = [];
 let listOfPhotoObjects = [];
 let fullPhotosHash = '';
-let hashesIdentical = false;
 let client;
 
 async function getPhotosDbCollection() {
@@ -43,7 +39,7 @@ module.exports = function albumController() {
     debug('checkDirHashExist');
     
     try {
-      fs.access(path.join(__dirname, 'directory-hash.txt'), (err) => {
+      fs.access(path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt'), (err) => {
         if (err) {
           dirHashExists = false;
         } else {
@@ -103,7 +99,7 @@ module.exports = function albumController() {
     debug('writeDirectoryHashToFile');
 
     try{
-      fs.writeFileSync(path.join(__dirname, '../../directory-hash.txt'), fullPhotosHash);
+      fs.writeFileSync(path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt'), fullPhotosHash);
     } catch (err) {
       debug(err.stack);
     };
@@ -285,7 +281,7 @@ module.exports = function albumController() {
 
     try {
       res.render(
-        'photo-new',
+        'photo-gallery',
         {
           listOfPhotoObjects,
         },
@@ -295,38 +291,6 @@ module.exports = function albumController() {
     }
 
     next();
-  }
-
-
-  async function renderVideoPlayer(req, res, next) {
-    debug('renderVideoPlayer');
-
-    try {
-      res.render(
-        'video-player'
-      );
-    } catch (err) {
-      debug(err.stack);
-    }
-
-    next();
-  }
-
-  
-  async function downloadVideo(req, res) {
-    debug('downloadVideo');
-    
-    try { 
-      res.download(req.body.videoDl, (error) => {
-        if (error) {
-          debug(`Error: ${error}`)
-        } else {
-          debug('Successful download!');
-        };
-      });
-    } catch (err) {
-      debug(err.stack);
-    }
   }
 
 
@@ -342,7 +306,5 @@ module.exports = function albumController() {
     archivePhotos,
     downloadChosenPhotos,
     renderPageNew,
-    renderVideoPlayer,
-    downloadVideo
   };
 };

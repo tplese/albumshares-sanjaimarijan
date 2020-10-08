@@ -16,14 +16,9 @@ module.exports = function router() {
     archivePhotos,
     downloadChosenPhotos,
     renderPageNew,
-    renderVideoPlayer,
-    downloadVideo
   } = albumController();
 
-  albumRouter.route('/').get((req, res) => {
-    res.render('main-page');
-  });
-/*
+  /*
   albumRouter.route('/albumold')
     .get(
       readFullPhotosDirectory,
@@ -37,7 +32,7 @@ module.exports = function router() {
   albumRouter.route('/download').post(archivePhotos, downloadChosenPhotos);
 */  
 
-  albumRouter.route('/album')
+  albumRouter.route('/')
     .get(
       checkDirHashExists,
       readFullPhotosDirectory,
@@ -47,12 +42,6 @@ module.exports = function router() {
       getPhotosFromDbToArray,
       renderPageNew
     );
-
-  albumRouter.route('/video')
-    .get(renderVideoPlayer);
-
-  albumRouter.route('/download')
-    .post(downloadVideo);
 
   return albumRouter;
 };
