@@ -11,6 +11,7 @@ const archiver = require('archiver');
 const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
 //const thumbPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'thumbs');
 
+let dirHashExists;
 let fullPhotosList = [];
 let listOfPhotoObjects = [];
 let fullPhotosHash = '';
@@ -38,31 +39,58 @@ async function getPhotosDbCollection() {
 
 
 module.exports = function albumController() {
+  async function checkDirHashExists(req, res, next) {
+    debug('checkDirHashExist');
+    
+    try {
+      fs.access(path.join(__dirname, 'directory-hash.txt'), (err) => {
+        if (err) {
+          dirHashExists = false;
+        } else {
+          dirHashExists = true;
+        };
+      });
+    } catch (err) {
+      debug(err.stack);
+    }
+    
+    next();
+  } 
+  
+  
   function readFullPhotosDirectory(req, res, next) {
     debug('readFullPhotosDirectory');
   
-    fullPhotosList = fs.readdirSync(fullPhotosDirPath);
+    try {
+      if (dirHashExists === false) {
+        fullPhotosList = fs.readdirSync(fullPhotosDirPath);
+      };
+    } catch (err) {
+      debug(err.stack);
+    };
 
     next();
   }
+
 
   async function createFullPhotosDirectoryHash(req, res, next) {
     debug('createFullPhotosDirectoryHash');
 
     try {
-      let tempString = '';
-      
-      for (let file in fullPhotosList) {
-        tempString += file;
+      if (dirHashExists === false) {
+        let tempString = '';
+        
+        for (let file in fullPhotosList) {
+          tempString += file;
+        };
+
+        fullPhotosHash = crypto
+          .createHash('md5')
+          .update(tempString)
+          .digest('hex');
+
+        debug(`fullPhotosHash: ${fullPhotosHash}`);
       };
-
-      fullPhotosHash = crypto
-        .createHash('md5')
-        .update(tempString)
-        .digest('hex');
-
-      debug(`fullPhotosHash: ${fullPhotosHash}`);
-
     } catch (err) {
       debug(err.stack);
     }
@@ -71,8 +99,21 @@ module.exports = function albumController() {
   }
  
 
+  async function writeDirectoryHashToFile(req, res, next) {
+    debug('writeDirectoryHashToFile');
+
+    try{
+      fs.writeFileSync(path.join(__dirname, '../../directory-hash.txt'), fullPhotosHash);
+    } catch (err) {
+      debug(err.stack);
+    };
+
+    next();
+  }
+
+
   async function compareLastAndFileHash(req, res, next) {
-    debug('compareDirAndFileHash');
+    debug('compareLastAndFileHash');
 
     try {
       // directory hash stored in .txt file
@@ -95,7 +136,7 @@ module.exports = function albumController() {
   async function populatePhotosDatabase(req, res, next) {
     debug('populatePhotosDatabase');
 
-    if (!hashesIdentical) {
+    if (dirHashExists === false) {
       try {
         const photosCollection = await getPhotosDbCollection(client);
         const result = await photosCollection.deleteMany({});
@@ -275,10 +316,7 @@ module.exports = function albumController() {
   async function downloadVideo(req, res) {
     debug('downloadVideo');
     
-    try {
-      //debug(`videoDl: ${JSON.parse(stringify(req.body.videoDl))}`);
-      //console.log(req.body.videoDl);
-      
+    try { 
       res.download(req.body.videoDl, (error) => {
         if (error) {
           debug(`Error: ${error}`)
@@ -293,8 +331,10 @@ module.exports = function albumController() {
 
 
   return {
+    checkDirHashExists,
     readFullPhotosDirectory,
     createFullPhotosDirectoryHash,
+    writeDirectoryHashToFile,
     compareLastAndFileHash,
     populatePhotosDatabase,
     getPhotosFromDbToArray,
