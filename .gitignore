@@ -1,5 +1,7 @@
 node_modules/
 **/photos/
 **/videos/
+**/videos-dl/
+**/photos-more/
 templates/
 directory-hash.txt
