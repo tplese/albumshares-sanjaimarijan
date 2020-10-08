@@ -2,5 +2,4 @@ node_modules/
 **/photos/
 **/videos/
 templates/
-.vscode/
 directory-hash.txt
