@@ -16,7 +16,7 @@ let client;
 
 async function getPhotosDbCollection() {
   try {
-    const url = 'mongodb://localhost:27017';
+    const url = 'mongodb://tomtom:9hotHwAcEvoq1NWDtPgLY2MlKhHRLqdh3dH2csFS9oih4Z7L@localhost:27017';
     const dbName = 'albumshares';
 
     client = await MongoClient.connect(url, { useUnifiedTopology: true });
