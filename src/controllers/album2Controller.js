@@ -16,7 +16,7 @@ let client;
 
 async function getPhotosDbCollection() {
   try {
-    const url = 'mongodb://tomtom:9hotHwAcEvoq1NWDtPgLY2MlKhHRLqdh3dH2csFS9oih4Z7L@localhost:27017/albumshares?authSource=albumshares';
+    const url = 'mongodb://tomtom:9hotHwAcEvoq1NWDtPgLY2MlKhHRLqdh3dH2csFS9oih4Z7L@34.89.232.92:27017/albumshares?authSource=albumshares&readPreference=primary&appname=MongoDB%20Compass&ssl=false';
     //const dbName = 'albumshares';
 
     client = await MongoClient.connect(url, { useUnifiedTopology: true });
