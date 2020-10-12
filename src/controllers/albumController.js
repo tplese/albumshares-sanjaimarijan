@@ -17,14 +17,14 @@ let client;
 async function getPhotosDbCollection() {
   try {
     const url = 'mongodb://tomtom:9hotHwAcEvoq1NWDtPgLY2MlKhHRLqdh3dH2csFS9oih4Z7L@localhost:27017/?authSource=albumshares';
-    const dbName = 'albumshares';
+    //const dbName = 'albumshares';
 
     client = await MongoClient.connect(url, { useUnifiedTopology: true });
     debug('getPhotosDbCollection -> Connected correctly to server');
 
-    const db = client.db(dbName);
-    const col = db.collection('photos');
-    //const col = client.collection('photos');
+    //const db = client.db(dbName);
+    //const col = db.collection('photos');
+    const col = client.collection('photos');
 
     return col;
   } catch (err) {
