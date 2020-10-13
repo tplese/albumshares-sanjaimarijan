@@ -3,7 +3,7 @@ const debug = require('debug')('app:album2Controller');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const archiver = require('archiver');
+const { midDbUsername, midDbPassword } = require('../../mongodb-credentials/martina-davorin');
 
 // photo directory paths - fulls and thumbs
 const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos2', 'fulls');
@@ -16,16 +16,17 @@ let client;
 
 async function getPhotosDbCollection() {
   try {
-    const url = 'mongodb://tomtom:9hotHwAcEvoq1NWDtPgLY2MlKhHRLqdh3dH2csFS9oih4Z7L@localhost:27017/albumshares?authSource=albumshares&readPreference=primary&appname=MongoDB%20Compass&ssl=false';
-    //const dbName = 'albumshares';
+    const dbName = 'albumshares';
+    const url = `mongodb+srv://${midDbUsername}:${midDbPassword}@martina-davorin.yuozj.gcp.mongodb.net/${dbName}?retryWrites=true&w=majority`;
+    //const url = 'mongodb://localhost:27017/albumshares'
 
-    client = await MongoClient.connect(url, { useUnifiedTopology: true });
+    //client = await MongoClient.connect(url, { useUnifiedTopology: true });
+    client = await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
     debug('getPhotosDbCollection -> Connected correctly to server');
 
-    //const db = client.db(dbName);
-    //const col = db.collection('photos');
-    const col = client.collection('photos2');
-
+    const db = client.db(dbName);
+    const col = db.collection('photos2');
+    
     return col;
   } catch (err) {
     debug(err.stack);

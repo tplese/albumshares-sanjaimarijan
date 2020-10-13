@@ -1,8 +1,10 @@
 node_modules/
 **/photos/
 **/photos-12/
+**/photos-197/
 **/photos2/
 **/videos/
 **/videos-dl/
 templates/
 directory-hashes/
+mongodb-credentials/
