@@ -3,7 +3,7 @@ const debug = require('debug')('app:album2Controller');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { midDbUsername, midDbPassword } = require('../../mongodb-credentials/martina-davorin');
+const { dbUrl } = require('../../mongodb-credentials/martina-davorin');
 
 // photo directory paths - fulls and thumbs
 const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos2', 'fulls');
@@ -17,11 +17,8 @@ let client;
 async function getPhotosDbCollection() {
   try {
     const dbName = 'albumshares';
-    const url = `mongodb+srv://${midDbUsername}:${midDbPassword}@martina-davorin.yuozj.gcp.mongodb.net/${dbName}?retryWrites=true&w=majority`;
-    //const url = 'mongodb://localhost:27017/albumshares'
-
-    //client = await MongoClient.connect(url, { useUnifiedTopology: true });
-    client = await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+    
+    client = await MongoClient.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
     debug('getPhotosDbCollection -> Connected correctly to server');
 
     const db = client.db(dbName);
@@ -117,6 +114,7 @@ module.exports = function albumController() {
       try {
         const photosCollection = await getPhotosDbCollection(client);
         const result = await photosCollection.deleteMany({});
+        await client.close();
 
         const pathPhotosFulls = path.join('photos2', 'fulls');
         const pathPhotosThumbs = path.join('photos2', 'thumbs');
@@ -130,6 +128,7 @@ module.exports = function albumController() {
           //debug(`photoObj: ${photoObj.name}`)  
           const photosCollection = await getPhotosDbCollection(client);
           const result = await photosCollection.insertOne(photoObj);
+          await client.close();
         };
       } catch (err) {
         debug(err.stack);
@@ -148,15 +147,14 @@ module.exports = function albumController() {
     try {
       const photosCollection = await getPhotosDbCollection(client);
       listOfPhotoObjects2 = await photosCollection.find().toArray();
+      await client.close();
       //debug(`listOfPhotosObj.name: ${listOfPhotoObjects2[10].name}`);
       //debug(`listOfPhotosObj.full: ${listOfPhotoObjects2[10].full}`);
       //debug(`listOfPhotosObj.thumb: ${listOfPhotoObjects2[10].thumb}`);
 
     } catch (err) {
 			debug(err.stack);
-		}
-
-    await client.close();
+    }
     
     next();
   }
