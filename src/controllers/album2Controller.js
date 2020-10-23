@@ -74,7 +74,11 @@ module.exports = function albumController() {
   
     try {
       if (dirHashExists === false) {
-        fullPhotosList = fs.readdirSync(fullPhotosDirPath);
+        // LOCAL
+        //fullPhotosList = fs.readdirSync(fullPhotosDirPath);
+
+        // GOOGLE
+        fullPhotosList = storage.bucket(fullPhotosDirPath).getFiles();
       };
     } catch (err) {
       debug(err.stack);
