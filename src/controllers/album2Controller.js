@@ -3,10 +3,26 @@ const debug = require('debug')('app:album2Controller');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { dbUrl } = require('../../mongodb-credentials/martina-davorin');
+const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
-// photo directory paths - fulls and thumbs
-const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos2', 'fulls');
+// ***** Google Cloud Storage ***** START *****
+const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
+const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
+
+// [Start app_cloud_storage_client]
+const {Storage} = require('@google-cloud/storage');
+
+const storage = new Storage();
+const bucket = storage.bucket(CLOUD_BUCKET);
+// [End app_cloud_storage_client]
+
+// ***** Google Cloud Storage ***** END *****
+
+// LOCAL photo directory paths - fulls
+//const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos2', 'fulls');
+
+// GOOGLE photos bucket path 
+const fullPhotosDirPath = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos2', 'fulls');
 
 let dirHashExists;
 let fullPhotosList = [];
@@ -115,15 +131,16 @@ module.exports = function albumController() {
         const photosCollection = await getPhotosDbCollection(client);
         const result = await photosCollection.deleteMany({});
         await client.close();
-
-        const pathPhotosFulls = path.join('photos2', 'fulls');
-        const pathPhotosThumbs = path.join('photos2', 'thumbs');
         
         for (let photo of fullPhotosList) {
           const photoObj = {};
           photoObj.name = photo;
-          photoObj.full = path.join(pathPhotosFulls, photo);
-          photoObj.thumb = path.join(pathPhotosThumbs, photo);
+          photoObj.full = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos2', 'fulls', photo);
+          photoObj.thumb = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos2', 'thumbs', photo);
+
+          // LOCAL only
+          //photoObj.full = path.join('photos2', 'fulls', photo);
+          //photoObj.thumb = path.join('photos2', 'thumbs', photo);
           
           //debug(`photoObj: ${photoObj.name}`)  
           const photosCollection = await getPhotosDbCollection(client);

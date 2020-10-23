@@ -8,7 +8,7 @@ const albumRouter = require('./src/routes/albumRoutes');
 const album2Router = require('./src/routes/album2Routes');
 
 const app = express();
-const port = process.env.PORT || 5100;
+const port = process.env.PORT || 8080;
 
 app.use(morgan('tiny'));
 app.use(bodyParser.json());
@@ -23,14 +23,6 @@ app.set('view engine', 'pug');
 app.use('/', otherRouter());
 app.use('/album', albumRouter());
 app.use('/album2', album2Router());
-
-
-/*
-app.get('/download', (req, res) => {
-  //response.setHeader("Content-Type", "text/pdf");
-  res.download('img1.jpg');
-});
-*/
 
 app.listen(port, () => {
   debug(`listening on port ${port}`);

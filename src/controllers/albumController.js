@@ -4,10 +4,26 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const archiver = require('archiver');
-const { dbUrl } = require('../../mongodb-credentials/martina-davorin');
+const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
-// photo directory paths - fulls and thumbs
-const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
+// ***** Google Cloud Storage ***** START *****
+const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
+const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
+
+// [Start app_cloud_storage_client]
+const {Storage} = require('@google-cloud/storage');
+
+const storage = new Storage();
+const bucket = storage.bucket(CLOUD_BUCKET);
+// [End app_cloud_storage_client]
+
+// ***** Google Cloud Storage ***** END *****
+
+// LOCAL photo directory paths - fulls
+//const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
+
+// GOOGLE photos bucket path 
+const fullPhotosDirPath = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'fulls');
 
 let dirHashExists = true;
 let fullPhotosList = [];
@@ -38,9 +54,6 @@ module.exports = function albumController() {
     debug('checkDirHashExist');
     
     try {
-      //TEST
-      debug(`username: ${midDbUsername}`);
-
       fs.access(path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt'), (err) => {
         if (err) {
           dirHashExists = false;
@@ -110,6 +123,7 @@ module.exports = function albumController() {
   }
 
 
+  // OLD - not working
   async function compareLastAndFileHash(req, res, next) {
     debug('compareLastAndFileHash');
 
@@ -139,15 +153,16 @@ module.exports = function albumController() {
         const photosCollection = await getPhotosDbCollection(client);
         const result = await photosCollection.deleteMany({});
         await client.close();
-
-        const pathPhotosFulls = path.join('photos', 'fulls');
-        const pathPhotosThumbs = path.join('photos', 'thumbs');
         
         for (let photo of fullPhotosList) {
           const photoObj = {};
           photoObj.name = photo;
-          photoObj.full = path.join(pathPhotosFulls, photo);
-          photoObj.thumb = path.join(pathPhotosThumbs, photo);
+          photoObj.full = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'fulls', photo);
+          photoObj.thumb = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'thumbs', photo);
+
+          // LOCAL only
+          //photoObj.full = path.join('photos', 'fulls', photo);
+          //photoObj.thumb = path.join('photos', 'thumbs', photo);
           
           //debug(`photoObj: ${photoObj.name}`)  
           const photosCollection = await getPhotosDbCollection(client);
