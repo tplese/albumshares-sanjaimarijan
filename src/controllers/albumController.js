@@ -79,6 +79,7 @@ module.exports = function albumController() {
 
         // GOOGLE
         fullPhotosList = storage.bucket(fullPhotosDirPath).getFiles();
+        debug(`fullPhotosList = ${fullPhotosList}`);
       };
     } catch (err) {
       debug(err.stack);
