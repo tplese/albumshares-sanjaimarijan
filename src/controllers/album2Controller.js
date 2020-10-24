@@ -38,7 +38,7 @@ async function getPhotosDbCollection() {
     debug('getPhotosDbCollection -> Connected correctly to server');
 
     const db = client.db(dbName);
-    const col = db.collection('photos2');
+    const col = db.collection('fotke2');
     
     return col;
   } catch (err) {
