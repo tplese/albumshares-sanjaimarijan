@@ -6,24 +6,28 @@ const crypto = require('crypto');
 const archiver = require('archiver');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
-// ***** Google Cloud Storage ***** START *****
+// ********** Google Cloud Storage ********** START **********
 const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
-const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
+debug(`Cloud Project env: ${GOOGLE_CLOUD_PROJECT}`);
 
+const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
+debug(`Bucket: ${CLOUD_BUCKET}`);
 // [Start app_cloud_storage_client]
 const {Storage} = require('@google-cloud/storage');
 
 const storage = new Storage();
 const bucket = storage.bucket(CLOUD_BUCKET);
+
+
 // [End app_cloud_storage_client]
 
-// ***** Google Cloud Storage ***** END *****
+// ********** Google Cloud Storage ********** END **********
 
 // LOCAL photo directory paths - fulls
 //const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
 
 // GOOGLE photos bucket path 
-const fullPhotosDirPath = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'fulls');
+//const fullPhotosDirPath = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'fulls');
 
 let dirHashExists = true;
 let fullPhotosList = [];
@@ -50,26 +54,24 @@ async function getPhotosDbCollection() {
 }
 
 module.exports = function albumController() {
-  async function checkDirHashExists(req, res, next) {
+  function checkDirHashExists(req, res, next) {
     debug('checkDirHashExist');
     
     try {
-      fs.access(path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt'), (err) => {
-        if (err) {
-          dirHashExists = false;
-        } else {
-          dirHashExists = true;
-        };
-      });
+      let photosTxtPath = path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt');
+      fs.accessSync(photosTxtPath, fs.constants.R_OK | fs.constants.W_OK);
     } catch (err) {
-      debug(err.stack);
+			dirHashExists = false;
     }
+    
+    // DELETE
+    dirHashExists = false;
     
     next();
   } 
   
   
-  function readFullPhotosDirectory(req, res, next) {
+  async function readFullPhotosDirectory(req, res, next) {
     debug('readFullPhotosDirectory');
   
     try {
@@ -78,9 +80,18 @@ module.exports = function albumController() {
         //fullPhotosList = fs.readdirSync(fullPhotosDirPath);
 
         // GOOGLE
-        fullPhotosList = storage.bucket(fullPhotosDirPath).getFiles();
+        const [photosFulls] = await bucket.getFiles({ prefix:'photos/fulls/' });
+
+        let i = 0;
+        photosFulls.forEach(file => {
+          if (file.name.includes('.jpg')){
+            fullPhotosList[i] = file.name.replace('photos/fulls/', '');
+            i++;
+          };
+        });
+
         debug(`fullPhotosList = ${fullPhotosList}`);
-      };
+    };
     } catch (err) {
       debug(err.stack);
     };
@@ -162,8 +173,9 @@ module.exports = function albumController() {
         for (let photo of fullPhotosList) {
           const photoObj = {};
           photoObj.name = photo;
-          photoObj.full = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'fulls', photo);
-          photoObj.thumb = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'thumbs', photo);
+
+          photoObj.full = 'https://storage.googleapis.com/martinaidavorin_bucket/photos/fulls/' + photo;
+          photoObj.thumb = 'https://storage.googleapis.com/martinaidavorin_bucket/photos/thumbs/' + photo;
 
           // LOCAL only
           //photoObj.full = path.join('photos', 'fulls', photo);
