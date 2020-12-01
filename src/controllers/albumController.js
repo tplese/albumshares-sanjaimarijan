@@ -1,41 +1,40 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const debug = require('debug')('app:albumController');
-const path = require('path');
-const fs = require('fs');
+//const path = require('path');
+//const fs = require('fs');
 const crypto = require('crypto');
-const archiver = require('archiver');
+//const archiver = require('archiver');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
 // ********** Google Cloud Storage ********** START **********
 const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
-debug(`Cloud Project env: ${GOOGLE_CLOUD_PROJECT}`);
-
 const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
-debug(`Bucket: ${CLOUD_BUCKET}`);
+
 // [Start app_cloud_storage_client]
 const {Storage} = require('@google-cloud/storage');
 
 const storage = new Storage();
 const bucket = storage.bucket(CLOUD_BUCKET);
-
-
 // [End app_cloud_storage_client]
-
 // ********** Google Cloud Storage ********** END **********
 
-// LOCAL photo directory paths - fulls
-//const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos', 'fulls');
+// ************************** CORS **************************
+const bucketName = 'martinaidavorin_bucket';
+const maxAgeSeconds = 3600;
+const method = 'GET';
+const origin = 'https://martinaidavorin.xyz';
+const responseHeader = 'Content-Type';
 
-// GOOGLE photos bucket path 
-//const fullPhotosDirPath = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos', 'fulls');
+// ************************* CORS - END *********************
 
-let dirHashExists = true;
-let fullPhotosList = [];
+const directoryName = 'photos';
+let dirHashExists = false;
+let photosFullsList = [];
 let listOfPhotoObjects = [];
 let fullPhotosHash = '';
 let client;
 
-async function getPhotosDbCollection() {
+async function getCollectionFromDb(colToGet) {
   try {
     const dbName = 'albumshares';
     
@@ -43,7 +42,7 @@ async function getPhotosDbCollection() {
     debug('getPhotosDbCollection -> Connected correctly to server');
 
     const db = client.db(dbName);
-    const col = db.collection('fotke');
+    const col = db.collection(colToGet);
     
     return col;
   } catch (err) {
@@ -53,20 +52,24 @@ async function getPhotosDbCollection() {
   return 1;
 }
 
+
 module.exports = function albumController() {
-  function checkDirHashExists(req, res, next) {
+  async function checkDirHashExists(req, res, next) {
     debug('checkDirHashExist');
     
     try {
-      let photosTxtPath = path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt');
-      fs.accessSync(photosTxtPath, fs.constants.R_OK | fs.constants.W_OK);
+      const colToGet = 'hashes';
+      const hashesCollection = await getCollectionFromDb(colToGet);
+      const hashForDirectory = await hashesCollection.find({name: directoryName}).toArray();
+      await client.close();
+      
+      if (hashForDirectory[0] != 'undefined' && hashForDirectory[0].name === directoryName) {
+        dirHashExists = true;
+      };
     } catch (err) {
-			dirHashExists = false;
+			debug(err.stack);
     }
-    
-    // DELETE
-    dirHashExists = false;
-    
+
     next();
   } 
   
@@ -77,21 +80,19 @@ module.exports = function albumController() {
     try {
       if (dirHashExists === false) {
         // LOCAL
-        //fullPhotosList = fs.readdirSync(fullPhotosDirPath);
+        // photosFullsList = fs.readdirSync(fullPhotosDirPath);
 
         // GOOGLE
-        const [photosFulls] = await bucket.getFiles({ prefix:'photos/fulls/' });
+        const [photosFullsObjects] = await bucket.getFiles({ prefix:`${directoryName}/fulls/` });
 
         let i = 0;
-        photosFulls.forEach(file => {
+        photosFullsObjects.forEach(file => {
           if (file.name.includes('.jpg')){
-            fullPhotosList[i] = file.name.replace('photos/fulls/', '');
+            photosFullsList[i] = file.name.replace(`${directoryName}/fulls/`, '');
             i++;
           };
         });
-
-        debug(`fullPhotosList = ${fullPhotosList}`);
-    };
+      };
     } catch (err) {
       debug(err.stack);
     };
@@ -107,16 +108,14 @@ module.exports = function albumController() {
       if (dirHashExists === false) {
         let tempString = '';
         
-        for (let file in fullPhotosList) {
-          tempString += file;
+        for (let photoName in photosFullsList) {
+          tempString += photoName;
         };
 
         fullPhotosHash = crypto
           .createHash('md5')
           .update(tempString)
           .digest('hex');
-
-        debug(`fullPhotosHash: ${fullPhotosHash}`);
       };
     } catch (err) {
       debug(err.stack);
@@ -126,11 +125,20 @@ module.exports = function albumController() {
   }
  
 
-  async function writeDirectoryHashToFile(req, res, next) {
-    debug('writeDirectoryHashToFile');
+  async function writeDirectoryHashToDb(req, res, next) {
+    debug('writeDirectoryHashToDb');
 
-    try{
-      fs.writeFileSync(path.join(__dirname, '..', '..', 'directory-hashes', 'photos.txt'), fullPhotosHash);
+    try {
+      if (dirHashExists === false) {
+        let hashesObject = {};
+        hashesObject.name = directoryName;
+        hashesObject.hash = fullPhotosHash;
+
+        const colToGet = 'hashes';
+        const hashesCollection = await getCollectionFromDb(colToGet);
+        const result = await hashesCollection.insertOne(hashesObject);
+        await client.close();
+      };
     } catch (err) {
       debug(err.stack);
     };
@@ -140,6 +148,7 @@ module.exports = function albumController() {
 
 
   // OLD - not working
+  /*
   async function compareLastAndFileHash(req, res, next) {
     debug('compareLastAndFileHash');
 
@@ -159,39 +168,35 @@ module.exports = function albumController() {
 
     next();
   }
+  */
 
 
   async function populatePhotosDatabase(req, res, next) {
     debug('populatePhotosDatabase');
 
-    if (dirHashExists === false) {
-      try {
-        const photosCollection = await getPhotosDbCollection(client);
+    try {
+      if (dirHashExists === false) {
+        const colToGet = directoryName;
+        const photosCollection = await getCollectionFromDb(colToGet);
         const result = await photosCollection.deleteMany({});
         await client.close();
         
-        for (let photo of fullPhotosList) {
+        for (let photo of photosFullsList) {
           const photoObj = {};
           photoObj.name = photo;
 
-          photoObj.full = 'https://storage.googleapis.com/martinaidavorin_bucket/photos/fulls/' + photo;
-          photoObj.thumb = 'https://storage.googleapis.com/martinaidavorin_bucket/photos/thumbs/' + photo;
+          photoObj.full = `https://storage.googleapis.com/martinaidavorin_bucket/${directoryName}/fulls/` + photo;
+          photoObj.thumb = `https://storage.googleapis.com/martinaidavorin_bucket/${directoryName}/thumbs/` + photo;
 
-          // LOCAL only
-          //photoObj.full = path.join('photos', 'fulls', photo);
-          //photoObj.thumb = path.join('photos', 'thumbs', photo);
-          
-          //debug(`photoObj: ${photoObj.name}`)  
-          const photosCollection = await getPhotosDbCollection(client);
+          const colToGet = directoryName;
+          const photosCollection = await getCollectionFromDb(colToGet);
           const result = await photosCollection.insertOne(photoObj);
           await client.close();
         };
-      } catch (err) {
-        debug(err.stack);
-      }
-
-      await client.close();
-    };
+      };
+    } catch (err) {
+      debug(err.stack);
+    }
 
     next();
   }
@@ -201,13 +206,10 @@ module.exports = function albumController() {
     debug('getPhotosFromDbToArray');
 
     try {
-      const photosCollection = await getPhotosDbCollection(client);
+      const colToGet = directoryName;
+      const photosCollection = await getCollectionFromDb(colToGet);
       listOfPhotoObjects = await photosCollection.find().toArray();
       await client.close();
-      //debug(`listOfPhotosObj.name: ${listOfPhotoObjects[10].name}`);
-      //debug(`listOfPhotosObj.full: ${listOfPhotoObjects[10].full}`);
-      //debug(`listOfPhotosObj.thumb: ${listOfPhotoObjects[10].thumb}`);
-
     } catch (err) {
 			debug(err.stack);
 		}
@@ -215,7 +217,50 @@ module.exports = function albumController() {
     next();
   }
 
+  async function configureBucketCors(req, res, next) {
+    debug('configureBucketCors');
+
+    try {
+      await storage.bucket(bucketName).setCorsConfiguration([
+        {
+          maxAgeSeconds,
+          method: [method],
+          origin: [origin],
+          responseHeader: [responseHeader],
+        },
+      ]);
+
+      console.log(`Bucket ${bucketName} was updated with a CORS config
+          to allow ${method} requests from ${origin} sharing 
+          ${responseHeader} responses across origins`);
+    } catch (err) {
+      debug(err.stack);
+    }
+
+    next();
+  }
   
+
+  async function renderPageNew(req, res, next) {
+    debug('renderPageNew');
+
+    try {
+      res.render(
+        'photo-gallery',
+        {
+          listOfPhotoObjects,
+        },
+      );
+    } catch (err) {
+      debug(err.stack);
+    }
+
+    next();
+  }
+
+
+  // OLD - not working
+  /*
   async function renderPage(req, res, next) {
     debug('renderPage');
 
@@ -232,7 +277,11 @@ module.exports = function albumController() {
 
     next();
   }
+  */
 
+
+  // OLD - not working
+  /*
   async function archivePhotos(req, res, next) {
     debug('archivePhotos');
     
@@ -242,8 +291,6 @@ module.exports = function albumController() {
       let archive = archiver('zip', {
         zlib: { level: 9 }
       });
-
-      
 
       output.on('close', function() {
         console.log(archive.pointer() + ' total bytes');
@@ -293,7 +340,10 @@ module.exports = function albumController() {
 
     next();
   }
+  */
 
+  // OLD - not working
+  /*
   async function downloadChosenPhotos(req, res) {
     debug('downloadChosenPhotos');
  
@@ -309,37 +359,16 @@ module.exports = function albumController() {
       debug(err.stack);
     }
   }
-
-
-  async function renderPageNew(req, res, next) {
-    debug('renderPageNew');
-
-    try {
-      res.render(
-        'photo-gallery',
-        {
-          listOfPhotoObjects,
-        },
-      );
-    } catch (err) {
-      debug(err.stack);
-    }
-
-    next();
-  }
-
+  */
 
   return {
     checkDirHashExists,
     readFullPhotosDirectory,
     createFullPhotosDirectoryHash,
-    writeDirectoryHashToFile,
-    compareLastAndFileHash,
+    writeDirectoryHashToDb,  
     populatePhotosDatabase,
     getPhotosFromDbToArray,
-    renderPage,
-    archivePhotos,
-    downloadChosenPhotos,
+    configureBucketCors,
     renderPageNew,
   };
 };

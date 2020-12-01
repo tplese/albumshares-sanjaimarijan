@@ -3,9 +3,9 @@ const debug = require('debug')('app');
 const morgan = require('morgan');
 const path = require('path');
 const bodyParser = require('body-parser');
-const otherRouter = require('./src/routes/otherRoutes');
 const albumRouter = require('./src/routes/albumRoutes');
 const album2Router = require('./src/routes/album2Routes');
+const otherRouter = require('./src/routes/otherRoutes');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -27,3 +27,5 @@ app.use('/album2', album2Router());
 app.listen(port, () => {
   debug(`listening on port ${port}`);
 });
+
+

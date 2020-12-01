@@ -1,11 +1,11 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const debug = require('debug')('app:album2Controller');
-const path = require('path');
-const fs = require('fs');
+//const path = require('path');
+//const fs = require('fs');
 const crypto = require('crypto');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
-// ***** Google Cloud Storage ***** START *****
+// ********** Google Cloud Storage ********** START **********
 const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
 const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
 
@@ -15,22 +15,17 @@ const {Storage} = require('@google-cloud/storage');
 const storage = new Storage();
 const bucket = storage.bucket(CLOUD_BUCKET);
 // [End app_cloud_storage_client]
+// ********** Google Cloud Storage ********** END **********
 
-// ***** Google Cloud Storage ***** END *****
 
-// LOCAL photo directory paths - fulls
-//const fullPhotosDirPath = path.join(__dirname, '..', '..', 'public', 'photos2', 'fulls');
-
-// GOOGLE photos bucket path 
-const fullPhotosDirPath = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos2', 'fulls');
-
-let dirHashExists;
-let fullPhotosList = [];
+const directoryName = 'photos2';
+let dirHashExists = false;
+let photosFullsList = [];
 let listOfPhotoObjects2 = [];
 let fullPhotosHash = '';
 let client;
 
-async function getPhotosDbCollection() {
+async function getCollectionFromDb(colToGet) {
   try {
     const dbName = 'albumshares';
     
@@ -38,7 +33,7 @@ async function getPhotosDbCollection() {
     debug('getPhotosDbCollection -> Connected correctly to server');
 
     const db = client.db(dbName);
-    const col = db.collection('fotke2');
+    const col = db.collection(colToGet);
     
     return col;
   } catch (err) {
@@ -49,36 +44,45 @@ async function getPhotosDbCollection() {
 }
 
 
-module.exports = function albumController() {
+module.exports = function album2Controller() {
   async function checkDirHashExists(req, res, next) {
     debug('checkDirHashExist');
     
     try {
-      fs.access(path.join(__dirname, '..', '..', 'directory-hashes', 'photos2.txt'), (err) => {
-        if (err) {
-          dirHashExists = false;
-        } else {
-          dirHashExists = true;
-        };
-      });
+      const colToGet = 'hashes';
+      const hashesCollection = await getCollectionFromDb(colToGet);
+      const hashForDirectory = await hashesCollection.find({name: directoryName}).toArray();
+      await client.close();
+      
+      if (hashForDirectory[0] != 'undefined' && hashForDirectory[0].name === directoryName) {
+        dirHashExists = true;
+      };
     } catch (err) {
-      debug(err.stack);
+			dirHashExists = false;
     }
     
     next();
   } 
   
   
-  function readFullPhotosDirectory(req, res, next) {
+  async function readFullPhotosDirectory(req, res, next) {
     debug('readFullPhotosDirectory');
   
     try {
       if (dirHashExists === false) {
         // LOCAL
-        //fullPhotosList = fs.readdirSync(fullPhotosDirPath);
+        // photosFullsList = fs.readdirSync(fullPhotosDirPath);
 
         // GOOGLE
-        fullPhotosList = storage.bucket(fullPhotosDirPath).getFiles();
+        const [photosFullsObjects] = await bucket.getFiles({ prefix:`${directoryName}/fulls/` });
+
+        let i = 0;
+        photosFullsObjects.forEach(file => {
+          if (file.name.includes('.jpg')){
+            photosFullsList[i] = file.name.replace(`${directoryName}/fulls/`, '');
+            i++;
+          };
+        });
       };
     } catch (err) {
       debug(err.stack);
@@ -95,16 +99,14 @@ module.exports = function albumController() {
       if (dirHashExists === false) {
         let tempString = '';
         
-        for (let file in fullPhotosList) {
-          tempString += file;
+        for (let photoName in photosFullsList) {
+          tempString += photoName;
         };
 
         fullPhotosHash = crypto
           .createHash('md5')
           .update(tempString)
           .digest('hex');
-
-        debug(`fullPhotosHash: ${fullPhotosHash}`);
       };
     } catch (err) {
       debug(err.stack);
@@ -114,11 +116,20 @@ module.exports = function albumController() {
   }
  
 
-  async function writeDirectoryHashToFile(req, res, next) {
+  async function writeDirectoryHashToDb(req, res, next) {
     debug('writeDirectoryHashToFile');
 
     try{
-      fs.writeFileSync(path.join(__dirname, '..', '..', 'directory-hashes', 'photos2.txt'), fullPhotosHash);
+      if (dirHashExists === false) {
+        let hashesObject = {};
+        hashesObject.name = directoryName;
+        hashesObject.hash = fullPhotosHash;
+
+        const colToGet = 'hashes';
+        const hashesCollection = await getCollectionFromDb(colToGet);
+        const result = await hashesCollection.insertOne(hashesObject);
+        await client.close();
+      };
     } catch (err) {
       debug(err.stack);
     };
@@ -130,33 +141,29 @@ module.exports = function albumController() {
   async function populatePhotosDatabase(req, res, next) {
     debug('populatePhotosDatabase');
 
-    if (dirHashExists === false) {
-      try {
-        const photosCollection = await getPhotosDbCollection(client);
+    try {
+      if (dirHashExists === false) {
+        const colToGet = directoryName;
+        const photosCollection = await getCollectionFromDb(colToGet);
         const result = await photosCollection.deleteMany({});
         await client.close();
         
-        for (let photo of fullPhotosList) {
+        for (let photo of photosFullsList) {
           const photoObj = {};
           photoObj.name = photo;
-          photoObj.full = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos2', 'fulls', photo);
-          photoObj.thumb = path.join('https://storage.googleapis.com', CLOUD_BUCKET, 'photos2', 'thumbs', photo);
 
-          // LOCAL only
-          //photoObj.full = path.join('photos2', 'fulls', photo);
-          //photoObj.thumb = path.join('photos2', 'thumbs', photo);
-          
-          //debug(`photoObj: ${photoObj.name}`)  
-          const photosCollection = await getPhotosDbCollection(client);
+          photoObj.full = `https://storage.googleapis.com/martinaidavorin_bucket/${directoryName}/fulls/` + photo;
+          photoObj.thumb = `https://storage.googleapis.com/martinaidavorin_bucket/${directoryName}/thumbs/` + photo;
+
+          const colToGet = directoryName;
+          const photosCollection = await getCollectionFromDb(colToGet);
           const result = await photosCollection.insertOne(photoObj);
           await client.close();
         };
-      } catch (err) {
-        debug(err.stack);
-      }
-
-      await client.close();
-    };
+      };
+    } catch (err) {
+      debug(err.stack);
+    }
 
     next();
   }
@@ -166,13 +173,10 @@ module.exports = function albumController() {
     debug('getPhotosFromDbToArray');
 
     try {
-      const photosCollection = await getPhotosDbCollection(client);
+      const colToGet = directoryName;
+      const photosCollection = await getCollectionFromDb(colToGet);
       listOfPhotoObjects2 = await photosCollection.find().toArray();
       await client.close();
-      //debug(`listOfPhotosObj.name: ${listOfPhotoObjects2[10].name}`);
-      //debug(`listOfPhotosObj.full: ${listOfPhotoObjects2[10].full}`);
-      //debug(`listOfPhotosObj.thumb: ${listOfPhotoObjects2[10].thumb}`);
-
     } catch (err) {
 			debug(err.stack);
     }
@@ -203,7 +207,7 @@ module.exports = function albumController() {
     checkDirHashExists,
     readFullPhotosDirectory,
     createFullPhotosDirectoryHash,
-    writeDirectoryHashToFile,
+    writeDirectoryHashToDb,
     populatePhotosDatabase,
     getPhotosFromDbToArray,
     renderPageNew,

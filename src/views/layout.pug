@@ -5,12 +5,12 @@ doctype html
   Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 html
   head
-    title AlbumShares
+    title Martina i Davorin
     meta(charset='utf-8')
     meta(name='viewport' content='width=device-width, initial-scale=1, user-scalable=no')
     link(rel='stylesheet' href='assets/css/main.css')
     noscript
-      link(rel='stylesheet' href='assets/css/noscript.css')
+    link(rel='stylesheet' href='assets/css/noscript.css')
     link(type='text/css' rel='stylesheet' href='node_modules/lightgallery/dist/css/lightgallery.css')
     link(rel='stylesheet', href='assets/css/customization.css')
   body.is-preload
@@ -103,7 +103,7 @@ html
     // A jQuery plugin that adds cross-browser mouse wheel support. (Optional)
     script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js')
 
-    script(src='node_modules/lightgallery/dist/js/lightgallery.min.js')
+    script(src='/lightgallery/js/lightgallery.js')
 
     // lightgallery plugins
     script(src='node_modules/lg-thumbnail/dist/lg-thumbnail.min.js')
@@ -117,7 +117,9 @@ html
 
     script.
       $(document).ready(function() {
-        $('#lightgallery').lightGallery(); 
+        $('#lightgallery').lightGallery({
+          selector: 'a'
+        }); 
       });
     script.
       $('#html5-videos').lightGallery();

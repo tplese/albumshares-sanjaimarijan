@@ -8,38 +8,22 @@ module.exports = function router() {
     checkDirHashExists,
     readFullPhotosDirectory,
     createFullPhotosDirectoryHash,
-    writeDirectoryHashToFile,
-    compareLastAndFileHash,
+    writeDirectoryHashToDb,
     populatePhotosDatabase,
     getPhotosFromDbToArray,
-    renderPage,
-    archivePhotos,
-    downloadChosenPhotos,
+    configureBucketCors,
     renderPageNew,
   } = albumController();
-
-  /*
-  albumRouter.route('/albumold')
-    .get(
-      readFullPhotosDirectory,
-      createFullPhotosDirectoryHash,
-      compareLastAndFileHash,
-      populatePhotosDatabase,
-      getPhotosFromDbToArray,
-      renderPage 
-    );
-  
-  albumRouter.route('/download').post(archivePhotos, downloadChosenPhotos);
-*/  
 
   albumRouter.route('/')
     .get(
       checkDirHashExists,
       readFullPhotosDirectory,
       createFullPhotosDirectoryHash,
-      writeDirectoryHashToFile,
+      writeDirectoryHashToDb,
       populatePhotosDatabase,
       getPhotosFromDbToArray,
+      configureBucketCors,
       renderPageNew
     );
 

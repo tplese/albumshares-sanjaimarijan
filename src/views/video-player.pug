@@ -3,22 +3,19 @@ extends layout
 block videoPlayer
   div(style='display:none;' id='video1')
     video(class='lg-video-object lg-html5' controls preload='none')
-      source(src='videos/MD-Spot.m4v' type='video/mp4')
+      source(src='https://storage.googleapis.com/martinaidavorin_bucket/videos/MID-Spot.m4v' type='video/mp4')
   div(style='display:none;' id='video2')
     video(class='lg-video-object lg-html5' controls preload='none')
-      source(src='videos/MD-Svadba.m4v' type='video/mp4')
+      source(src='https://storage.googleapis.com/martinaidavorin_bucket/videos/MID-Svadba.m4v' type='video/mp4')
   //data-src should not be provided when you use html5 videos
   ul.vid-ul-width(id='html5-videos')
     li(data-poster='images/video-spot.jpg' data-sub-html='video caption1' data-html='#video1')
       h1 Video - Spot
       img(src='images/video-spot.jpg')
+      a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_bucket/o/videos%2FMID-Spot.m4v?alt=media')
+      button(class='dl-button' type="button") Preuzmi Video Spot (67 MB)
     li(data-poster='images/video-svadba.jpg' data-sub-html='video caption2' data-html='#video2')
       h1 Video - Svadba
       img(src='images/video-svadba.jpg')
-      
-  div.vid-div-width
-    h1 Preuzimanja videa
-    form#dl-short(name='shortVideo' action='/download' method='post')
-      button(form='dl-short' type='submit' name='videoDl' value='public/videos-dl/MD-Spot.m4v') Preuzmi Spot (67 MB)
-    form#dl-long(name='longVideo' action='/download' method='post')
-      button(form='dl-long' type='submit' name='videoDl' value='public/videos-dl/MD-Svadba.m4v') Preuzmi Svadbu (2.1 GB)
+      a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_bucket/o/videos%2FMID-Svadba.m4v?alt=media')
+      button(class='dl-button' type='button') Preuzmi Video Svadbe (2.1 GB)

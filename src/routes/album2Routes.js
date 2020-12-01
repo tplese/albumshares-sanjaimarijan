@@ -8,7 +8,7 @@ module.exports = function router() {
     checkDirHashExists,
     readFullPhotosDirectory,
     createFullPhotosDirectoryHash,
-    writeDirectoryHashToFile,
+    writeDirectoryHashToDb,
     populatePhotosDatabase,
     getPhotosFromDbToArray,
     renderPageNew,
@@ -19,7 +19,7 @@ module.exports = function router() {
       checkDirHashExists,
       readFullPhotosDirectory,
       createFullPhotosDirectoryHash,
-      writeDirectoryHashToFile,
+      writeDirectoryHashToDb,
       populatePhotosDatabase,
       getPhotosFromDbToArray,
       renderPageNew
