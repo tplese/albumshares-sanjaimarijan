@@ -1,9 +1,6 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const debug = require('debug')('app:albumController');
-//const path = require('path');
-//const fs = require('fs');
 const crypto = require('crypto');
-//const archiver = require('archiver');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
 // ********** Google Cloud Storage ********** START **********
@@ -17,15 +14,6 @@ const storage = new Storage();
 const bucket = storage.bucket(CLOUD_BUCKET);
 // [End app_cloud_storage_client]
 // ********** Google Cloud Storage ********** END **********
-
-// ************************** CORS **************************
-const bucketName = 'martinaidavorin_bucket';
-const maxAgeSeconds = 3600;
-const method = 'GET';
-const origin = 'https://martinaidavorin.xyz';
-const responseHeader = 'Content-Type';
-
-// ************************* CORS - END *********************
 
 const directoryName = 'photos';
 let dirHashExists = false;
@@ -147,30 +135,6 @@ module.exports = function albumController() {
   }
 
 
-  // OLD - not working
-  /*
-  async function compareLastAndFileHash(req, res, next) {
-    debug('compareLastAndFileHash');
-
-    try {
-      // directory hash stored in .txt file
-      const directoryHashOnFile = fs.readFileSync(path.join(__dirname, '../../directory-hash.txt')).toString();
-      debug(`directoryHashOnFile: ${directoryHashOnFile}`);
-
-      if (directoryHashOnFile === fullPhotosHash) {
-        hashesIdentical = true;
-      } else {
-        fs.writeFileSync(path.join(__dirname, '../../directory-hash.txt'), fullPhotosHash);
-      };
-    } catch (err) {
-      debug(err.stack);
-    }
-
-    next();
-  }
-  */
-
-
   async function populatePhotosDatabase(req, res, next) {
     debug('populatePhotosDatabase');
 
@@ -216,29 +180,6 @@ module.exports = function albumController() {
     
     next();
   }
-
-  async function configureBucketCors(req, res, next) {
-    debug('configureBucketCors');
-
-    try {
-      await storage.bucket(bucketName).setCorsConfiguration([
-        {
-          maxAgeSeconds,
-          method: [method],
-          origin: [origin],
-          responseHeader: [responseHeader],
-        },
-      ]);
-
-      console.log(`Bucket ${bucketName} was updated with a CORS config
-          to allow ${method} requests from ${origin} sharing 
-          ${responseHeader} responses across origins`);
-    } catch (err) {
-      debug(err.stack);
-    }
-
-    next();
-  }
   
 
   async function renderPageNew(req, res, next) {
@@ -259,108 +200,6 @@ module.exports = function albumController() {
   }
 
 
-  // OLD - not working
-  /*
-  async function renderPage(req, res, next) {
-    debug('renderPage');
-
-    try {
-      res.render(
-        'photo-gallery',
-        {
-          listOfPhotoObjects,
-        },
-      );
-    } catch (err) {
-      debug(err.stack);
-    }
-
-    next();
-  }
-  */
-
-
-  // OLD - not working
-  /*
-  async function archivePhotos(req, res, next) {
-    debug('archivePhotos');
-    
-    try {
-      let output = fs.createWriteStream('Davorin-Martina-Foto.zip');
-      
-      let archive = archiver('zip', {
-        zlib: { level: 9 }
-      });
-
-      output.on('close', function() {
-        console.log(archive.pointer() + ' total bytes');
-        console.log('archiver has been finalized and the output file descriptor has closed.');
-      });
-
-      output.on('end', function() {
-        console.log('Data has been drained');
-      });
-
-      archive.on('error', function(err) {
-        throw err;
-      });
-
-      archive.on('warning', function(err) {
-        if (err.code === 'ENOENT') {
-          // log warning
-        } else {
-          // throw error
-          throw err;
-        }
-      });
-
-      archive.on('error', function(err) {
-        throw err;
-      });
-
-      // Pipe archive data to the output file
-      archive.pipe(output);
-
-      // Append files
-      const photosToDownload = await req.body;
-      let fileBeingArchived;
-      
-      for (let key in photosToDownload) {
-        //debug(`value: ${photosToDownload[key]}`);
-        fileBeingArchived = path.join(fullPhotosDirPath, key);
-        //debug(`currentFile: ${currentFileDownload}`);
-
-        archive.append(fs.createReadStream(fileBeingArchived), { name: key });
-      };
-
-      await archive.finalize();
-    } catch (err) {
-      debug(err.stack);
-    }
-
-    next();
-  }
-  */
-
-  // OLD - not working
-  /*
-  async function downloadChosenPhotos(req, res) {
-    debug('downloadChosenPhotos');
- 
-    try {
-      res.download('Davorin-Martina-Foto.zip', (error) => {
-        if (error) {
-          debug(`Error: ${error}`)
-        } else {
-          debug('Successful download!');
-        };
-      });
-    } catch (err) {
-      debug(err.stack);
-    }
-  }
-  */
-
   return {
     checkDirHashExists,
     readFullPhotosDirectory,
@@ -368,7 +207,6 @@ module.exports = function albumController() {
     writeDirectoryHashToDb,  
     populatePhotosDatabase,
     getPhotosFromDbToArray,
-    configureBucketCors,
     renderPageNew,
   };
 };

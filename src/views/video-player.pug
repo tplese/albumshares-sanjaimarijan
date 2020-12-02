@@ -8,14 +8,18 @@ block videoPlayer
     video(class='lg-video-object lg-html5' controls preload='none')
       source(src='https://storage.googleapis.com/martinaidavorin_bucket/videos/MID-Svadba.m4v' type='video/mp4')
   //data-src should not be provided when you use html5 videos
+  h1 Pogledaj
   ul.vid-ul-width(id='html5-videos')
     li(data-poster='images/video-spot.jpg' data-sub-html='video caption1' data-html='#video1')
-      h1 Video - Spot
+      h2 Video - Spot
       img(src='images/video-spot.jpg')
-      a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_bucket/o/videos%2FMID-Spot.m4v?alt=media')
-      button(class='dl-button' type="button") Preuzmi Video Spot (67 MB)
     li(data-poster='images/video-svadba.jpg' data-sub-html='video caption2' data-html='#video2')
-      h1 Video - Svadba
+      h2 Video - Svadba
       img(src='images/video-svadba.jpg')
-      a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_bucket/o/videos%2FMID-Svadba.m4v?alt=media')
+
+  div.dl-links
+    h1 Preuzmi
+    a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_bucket/o/videos%2FMID-Spot.m4v?alt=media' download)
+      button(class='dl-button' type="button") Preuzmi Video Spot (67 MB)
+    a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_bucket/o/videos%2FMID-Svadba.m4v?alt=media' download)
       button(class='dl-button' type='button') Preuzmi Video Svadbe (2.1 GB)

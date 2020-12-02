@@ -25,19 +25,12 @@ html
           ul
             li
               a(href='/') Glavna
-            //li
-              a(href='/albumold') Foto
-            //li
-              form#chosenPhotos(name='listOfPhotos' action='/download' method='post')
-                button(form='chosenPhotos' type='submit') Skini fotke
             li
               a(href='/album') Foto
             li
               a(href='/album2') Foto2
             li
               a(href='/video') Video
-            //li
-              a.icon.solid.fa-info-circle(href='#footer') Contact
       // Main
       block mainPage
       
@@ -51,51 +44,10 @@ html
       footer#footer.panel
         .inner.split
           div
-            section
-              h2 Magna feugiat sed adipiscing
-              p
-                | Nulla consequat, ex ut suscipit rutrum, mi dolor tincidunt erat, et scelerisque turpis ipsum eget quis orci mattis aliquet. Maecenas fringilla et ante at lorem et ipsum. Dolor nulla eu bibendum sapien. Donec non pharetra dui. Nulla consequat, ex ut suscipit rutrum, mi dolor tincidunt erat, et scelerisque turpis ipsum.
-            section
-              h2 Follow me on ...
-              ul.icons
-                li
-                  a.icon.brands.fa-twitter(href='#')
-                    span.label Twitter
-                li
-                  a.icon.brands.fa-facebook-f(href='#')
-                    span.label Facebook
-                li
-                  a.icon.brands.fa-instagram(href='#')
-                    span.label Instagram
-                li
-                  a.icon.brands.fa-github(href='#')
-                    span.label GitHub
-                li
-                  a.icon.brands.fa-dribbble(href='#')
-                    span.label Dribbble
-                li
-                  a.icon.brands.fa-linkedin-in(href='#')
-                    span.label LinkedIn
             p.copyright
               | © Unttled. Design: 
               a(href='http://html5up.net') HTML5 UP
               | .
-          div
-            section
-              h2 Get in touch
-              form(method='post' action='#')
-                .fields
-                  .field.half
-                    input#name(type='text' name='name' placeholder='Name')
-                  .field.half
-                    input#email(type='text' name='email' placeholder='Email')
-                  .field
-                    textarea#message(name='message' rows='4' placeholder='Message')
-                ul.actions
-                  li
-                    input.primary(type='submit' value='Send')
-                  li
-                    input(type='reset' value='Reset')
     // Scripts
     script(src='assets/js/jquery.min.js')
     script(src='assets/js/jquery.poptrox.min.js')

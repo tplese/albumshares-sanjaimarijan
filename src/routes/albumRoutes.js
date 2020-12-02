@@ -11,7 +11,6 @@ module.exports = function router() {
     writeDirectoryHashToDb,
     populatePhotosDatabase,
     getPhotosFromDbToArray,
-    configureBucketCors,
     renderPageNew,
   } = albumController();
 
@@ -23,7 +22,6 @@ module.exports = function router() {
       writeDirectoryHashToDb,
       populatePhotosDatabase,
       getPhotosFromDbToArray,
-      configureBucketCors,
       renderPageNew
     );
 

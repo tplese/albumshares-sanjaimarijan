@@ -5,19 +5,15 @@ const otherRouter = express.Router();
 
 module.exports = function router() {
   const {
+    renderMainPage,
     renderVideoPlayer,
-    downloadVideo
   } = otherController();
 
-  otherRouter.route('/').get((req, res) => {
-    res.render('main-page');
-  });
+  otherRouter.route('/')
+    .get(renderMainPage);
 
   otherRouter.route('/video')
     .get(renderVideoPlayer);
-
-  otherRouter.route('/download')
-    .post(downloadVideo);
 
   return otherRouter;
 };

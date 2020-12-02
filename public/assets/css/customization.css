@@ -55,6 +55,10 @@ img.landscape {
   left: 35vw;
 }
 
+.dl-links {
+  width: 360px;
+}
+
 .dl-button {
   width: 360px;
   height: 3.5rem;
@@ -178,13 +182,6 @@ form > button {
     border: 0 !important;
     padding: 0 !important;
   }
-
-  /*
-  .vid-div-width {
-    width: 100%;
-    margin-top: 5vh;
-  }
-  */
 }
 
 @media (orientation: landscape) {
@@ -201,11 +198,4 @@ form > button {
   .vid-ul-width li {
     width: 400px;
   }
-
-  /*
-  .vid-div-width {
-    width: 30vw;
-    margin-top: 5vh;
-  }
-  */
 }

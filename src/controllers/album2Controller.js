@@ -1,7 +1,5 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const debug = require('debug')('app:album2Controller');
-//const path = require('path');
-//const fs = require('fs');
 const crypto = require('crypto');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
