@@ -4,16 +4,19 @@ const crypto = require('crypto');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
 // ********** Google Cloud Storage ********** START **********
-const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
-const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_bucket';
+//const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
+//const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_storage';
+
+const bucketName = 'martinaidavorin_storage';
 
 // [Start app_cloud_storage_client]
 const {Storage} = require('@google-cloud/storage');
 
 const storage = new Storage();
-const bucket = storage.bucket(CLOUD_BUCKET);
+//const bucket = storage.bucket(CLOUD_BUCKET);
 // [End app_cloud_storage_client]
 // ********** Google Cloud Storage ********** END **********
+
 
 const directoryName = 'photos';
 let dirHashExists = false;
@@ -50,9 +53,9 @@ module.exports = function albumController() {
       const hashesCollection = await getCollectionFromDb(colToGet);
       const hashForDirectory = await hashesCollection.find({name: directoryName}).toArray();
       await client.close();
-      
-      if (hashForDirectory[0] != 'undefined' && hashForDirectory[0].name === directoryName) {
-        dirHashExists = true;
+
+      if (hashForDirectory[0] !== undefined && hashForDirectory[0].name === directoryName) {
+          dirHashExists = true;
       };
     } catch (err) {
 			debug(err.stack);
@@ -71,7 +74,7 @@ module.exports = function albumController() {
         // photosFullsList = fs.readdirSync(fullPhotosDirPath);
 
         // GOOGLE
-        const [photosFullsObjects] = await bucket.getFiles({ prefix:`${directoryName}/fulls/` });
+        const [photosFullsObjects] = await storage.bucket(bucketName).getFiles({ prefix:`${directoryName}/fulls/` });
 
         let i = 0;
         photosFullsObjects.forEach(file => {
@@ -149,8 +152,8 @@ module.exports = function albumController() {
           const photoObj = {};
           photoObj.name = photo;
 
-          photoObj.full = `https://storage.googleapis.com/martinaidavorin_bucket/${directoryName}/fulls/` + photo;
-          photoObj.thumb = `https://storage.googleapis.com/martinaidavorin_bucket/${directoryName}/thumbs/` + photo;
+          photoObj.full = `https://storage.googleapis.com/martinaidavorin_storage/${directoryName}/fulls/` + photo;
+          photoObj.thumb = `https://storage.googleapis.com/martinaidavorin_storage/${directoryName}/thumbs/` + photo;
 
           const colToGet = directoryName;
           const photosCollection = await getCollectionFromDb(colToGet);
