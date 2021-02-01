@@ -4,16 +4,11 @@ const crypto = require('crypto');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
 // ********** Google Cloud Storage ********** START **********
-//const GOOGLE_CLOUD_PROJECT = process.env['GOOGLE_CLOUD_PROJECT'];
-//const CLOUD_BUCKET = GOOGLE_CLOUD_PROJECT + '_storage';
-
 const bucketName = 'martinaidavorin_storage';
 
 // [Start app_cloud_storage_client]
 const {Storage} = require('@google-cloud/storage');
-
 const storage = new Storage();
-//const bucket = storage.bucket(CLOUD_BUCKET);
 // [End app_cloud_storage_client]
 // ********** Google Cloud Storage ********** END **********
 
