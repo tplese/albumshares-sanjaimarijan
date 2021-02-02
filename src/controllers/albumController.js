@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { dbUrl } = require('../../mongodb-credentials/martinaDavorin');
 
 // ********** Google Cloud Storage ********** START **********
-const bucketName = 'martinaidavorin_storage';
+const bucketName = 'sanjaimarijan-storage';
 
 // [Start app_cloud_storage_client]
 const {Storage} = require('@google-cloud/storage');
@@ -14,6 +14,7 @@ const storage = new Storage();
 
 
 const directoryName = 'photos';
+const dbDirectoryName = 'sim-photos1';
 let dirHashExists = false;
 let photosFullsList = [];
 let listOfPhotoObjects = [];
@@ -43,14 +44,14 @@ module.exports = function albumController() {
   async function checkDirHashExists(req, res, next) {
     debug('checkDirHashExist');
     
-    try {
+    try { 
       const colToGet = 'hashes';
       const hashesCollection = await getCollectionFromDb(colToGet);
-      const hashForDirectory = await hashesCollection.find({name: directoryName}).toArray();
+      const hashForDirectory = await hashesCollection.find({name: dbDirectoryName}).toArray();
       await client.close();
 
-      if (hashForDirectory[0] !== undefined && hashForDirectory[0].name === directoryName) {
-          dirHashExists = true;
+      if (hashForDirectory[0] !== undefined && hashForDirectory[0].name === dbDirectoryName) {
+        dirHashExists = true;
       };
     } catch (err) {
 			debug(err.stack);
@@ -117,7 +118,7 @@ module.exports = function albumController() {
     try {
       if (dirHashExists === false) {
         let hashesObject = {};
-        hashesObject.name = directoryName;
+        hashesObject.name = dbDirectoryName;
         hashesObject.hash = fullPhotosHash;
 
         const colToGet = 'hashes';
@@ -138,7 +139,7 @@ module.exports = function albumController() {
 
     try {
       if (dirHashExists === false) {
-        const colToGet = directoryName;
+        const colToGet = dbDirectoryName;
         const photosCollection = await getCollectionFromDb(colToGet);
         const result = await photosCollection.deleteMany({});
         await client.close();
@@ -147,10 +148,10 @@ module.exports = function albumController() {
           const photoObj = {};
           photoObj.name = photo;
 
-          photoObj.full = `https://storage.googleapis.com/martinaidavorin_storage/${directoryName}/fulls/` + photo;
-          photoObj.thumb = `https://storage.googleapis.com/martinaidavorin_storage/${directoryName}/thumbs/` + photo;
+          photoObj.full = `https://storage.googleapis.com/sanjaimarijan-storage/${directoryName}/fulls/` + photo;
+          photoObj.thumb = `https://storage.googleapis.com/sanjaimarijan-storage/${directoryName}/thumbs/` + photo;
 
-          const colToGet = directoryName;
+          const colToGet = dbDirectoryName;
           const photosCollection = await getCollectionFromDb(colToGet);
           const result = await photosCollection.insertOne(photoObj);
           await client.close();
@@ -168,13 +169,13 @@ module.exports = function albumController() {
     debug('getPhotosFromDbToArray');
 
     try {
-      const colToGet = directoryName;
+      const colToGet = dbDirectoryName;
       const photosCollection = await getCollectionFromDb(colToGet);
       listOfPhotoObjects = await photosCollection.find().toArray();
       await client.close();
     } catch (err) {
-			debug(err.stack);
-		}
+		  debug(err.stack);
+	  }
     
     next();
   }

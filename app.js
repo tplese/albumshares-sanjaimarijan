@@ -27,5 +27,3 @@ app.use('/album2', album2Router());
 app.listen(port, () => {
   debug(`listening on port ${port}`);
 });
-
-

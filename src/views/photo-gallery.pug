@@ -2,16 +2,10 @@ extends layout
 
 block photoGallery
   #lightgallery
-    h1 Foto (197)
+    h1 Foto (378)
     br
     if listOfPhotoObjects.length  
       for photoObject of listOfPhotoObjects
         a(href=photoObject.full)
           img.photo-thumb(src=photoObject.thumb alt=photoObject.name) 
           p=photoObject.name
-  
-  
-  
-  
-  
-  
