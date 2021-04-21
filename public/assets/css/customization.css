@@ -1,6 +1,20 @@
+h1, h2 {
+    color: pink;
+}
+
+li a {
+    color: pink !important;
+}
+
+a button {
+    color: pink !important;
+}
+
 /************ 
 * main-page *
 ************/
+
+
 #main-page-row {
   margin-top: 15vh;
   margin-left: 5vw;
@@ -154,7 +168,7 @@ a > p {
   position: absolute;
   bottom: -5px;
   left: 30px;
-  color: white;
+  color: pink;
   text-transform: uppercase;
 }
 
@@ -179,7 +193,7 @@ form > button {
 
   .vid-ul-width {
     width: 100% !important;
-    margin: 0 !important;
+    margin: 10px 0 !important;
     border: 0 !important;
     padding: 0 !important;
   }
@@ -198,5 +212,6 @@ form > button {
 
   .vid-ul-width li {
     width: 400px;
+    margin: 0 0 50px 0;
   }
 }

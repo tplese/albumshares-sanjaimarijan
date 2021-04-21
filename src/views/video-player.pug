@@ -3,10 +3,13 @@ extends layout
 block videoPlayer
   div(style='display:none;' id='video1')
     video(class='lg-video-object lg-html5' controls preload='none')
-      source(src='https://storage.googleapis.com/martinaidavorin_storage/videos/MID-Spot.m4v' type='video/mp4')
+      source(src='https://storage.googleapis.com/sanjaimarijan-storage/videos/SIM-Spot.m4v' type='video/mp4')
   div(style='display:none;' id='video2')
     video(class='lg-video-object lg-html5' controls preload='none')
-      source(src='https://storage.googleapis.com/martinaidavorin_storage/videos/MID-Svadba.m4v' type='video/mp4')
+      source(src='https://storage.googleapis.com/sanjaimarijan-storage/videos/SIM-Svadba-1.m4v' type='video/mp4')
+  div(style='display:none;' id='video3')
+    video(class='lg-video-object lg-html5' controls preload='none')
+      source(src='https://storage.googleapis.com/sanjaimarijan-storage/videos/SIM-Svadba-2.m4v' type='video/mp4')
   //data-src should not be provided when you use html5 videos
   h1 Pogledaj
   ul.vid-ul-width(id='html5-videos')
@@ -22,7 +25,9 @@ block videoPlayer
 
   div.dl-links
     h1 Preuzmi
-    a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_storage/o/videos%2FMID-Spot.m4v?alt=media' download)
-      button(class='dl-button' type="button") Preuzmi Video Spot (67 MB)
-    a(href='https://storage.googleapis.com/download/storage/v1/b/martinaidavorin_storage/o/videos%2FMID-Svadba.m4v?alt=media' download)
-      button(class='dl-button' type='button') Preuzmi Video Svadbe (2.1 GB)
+    a(href='https://storage.googleapis.com/download/storage/v1/b/sanjaimarijan-storage/o/videos%2FSIM-Spot.m4v?alt=media' download)
+      button(class='dl-button' type="button") Preuzmi Video Spot (39.1 MB)
+    a(href='https://storage.googleapis.com/download/storage/v1/b/sanjaimarijan-storage/o/videos%2FSIM-Svadba-1.m4v?alt=media' download)
+      button(class='dl-button' type='button') Preuzmi Video Svadbe - Prvi dio (697 MB)
+    a(href='https://storage.googleapis.com/download/storage/v1/b/sanjaimarijan-storage/o/videos%2FSIM-Svadba-2.m4v?alt=media' download)
+      button(class='dl-button' type='button') Preuzmi Video Svadbe - Drugi dio (908 MB)
